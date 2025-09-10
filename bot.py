@@ -1,3 +1,5 @@
+# Перезапишем bot.py с исправленным кодом
+cat > /root/help_bot/bot.py << 'EOF'
 # bot.py
 from telegram import Update, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
@@ -72,7 +74,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(messages.CHOOSE_CITY, reply_markup=keyboards.cities_list())
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if 'category' in context.user_
+    if 'category' in context.user_data:
         category = context.user_data['category']
         user = database.get_user(update.effective_user.id)
         if not user:
@@ -95,10 +97,14 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         del context.user_data['category']
         await update.message.reply_text(messages.REQUEST_CREATED, reply_markup=keyboards.main_menu())
+    else:
+        await update.message.reply_text("Пожалуйста, сначала выберите категорию через меню.", reply_markup=keyboards.main_menu())
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if 'category' in context.user_
+    if 'category' in context.user_data:
         await update.message.reply_text("Пожалуйста, сначала введите описание проблемы.")
+    else:
+        await update.message.reply_text("Пожалуйста, сначала выберите категорию через меню.", reply_markup=keyboards.main_menu())
 
 def main():
     app = Application.builder().token(config.TOKEN).build()
@@ -106,7 +112,9 @@ def main():
     app.add_handler(CallbackQueryHandler(button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+    print("Бот запущен...")
     app.run_polling()
 
 if __name__ == '__main__':
     main()
+EOF
