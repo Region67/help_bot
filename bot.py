@@ -1,5 +1,3 @@
-# Перезапишем bot.py с исправленным кодом
-cat > /root/help_bot/bot.py << 'EOF'
 # bot.py
 from telegram import Update, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
